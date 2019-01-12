@@ -15,7 +15,7 @@
 int main() {
 
     // Get the name
-    std::cout << "Name: ";
+    std::cout << "Enter your name: ";
     std::string name;
     std::cin >> name;
     

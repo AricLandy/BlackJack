@@ -10,3 +10,67 @@ A basic command line blackjack simulator
  ./blackJack
 ```
  
+ 
+ ## Example
+ ```
+ Enter your name: Aric
+ 
+ You have $10
+ How much do you want to bet: $5
+ 
+ Dealing cards...(push enter to reveal each card)
+ 
+ Aric gets...
+ ------------------
+ |  Two of Spades  |
+ ------------------
+ Aric hand value: 2
+ 
+ Dealer gets...
+ ------------------
+ |  Queen of Hearts  |
+ ------------------
+ Dealer hand value: 10
+ 
+ Aric gets...
+ ------------------
+ |  King of Diamonds  |
+ ------------------
+ Aric hand value: 12
+ 
+ Dealer gets...
+ ---Card Hidden---
+ 
+ Do you want another card? (y or n) y
+ 
+ Aric gets...
+ ------------------
+ |  Seven of Diamonds  |
+ ------------------
+ Aric hand value: 19
+ 
+ Do you want another card? (y or n) n
+ 
+ Dealers hidden card...
+ ------------------
+ |  Six of Spades  |
+ ------------------
+ Dealer hand value: 16
+ 
+ Dealer gets...
+ ------------------
+ |  Queen of Spades  |
+ ------------------
+ Dealer hand value: 26
+ 
+ Dealer busts
+ 
+ Aric wins
+ You have $15
+ 
+ Cash Out? (y or n) y
+ 
+ 
+ Final money: $15
+ Profit: $5
+```
