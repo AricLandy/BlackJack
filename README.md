@@ -1,5 +1,5 @@
 # Black Jack
-A basic command line blackjack simulator
+An easy to play terminal blackjack simulator
 ### How to play
 1) Compile the code
  ``` shell
