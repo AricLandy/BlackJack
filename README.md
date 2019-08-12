@@ -1,7 +1,7 @@
 # Black Jack
 An easy to play terminal blackjack simulator
 
-This Project was developed before I used Git Hub to show my work, all of the code was written by me, just unfortunately not using proper source control techniques. 
+This Project, like the Sudoku solver, was developed before I used Git Hub to show my work, all of the code was written by me, just unfortunately not using proper source control techniques. 
 ### How to play
 1) Compile the code
  ``` shell
