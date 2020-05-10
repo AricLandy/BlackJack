@@ -171,7 +171,7 @@ void Dealer::reveal(){
 
 // Human ctor calls player ctor
 // HUman starts with $10
-Human::Human(std::string &name_in) : Player(name_in), money(10) {}
+Human::Human(std::string &name_in) : Player(name_in), money(0) {}
 
 
 

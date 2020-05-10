@@ -8,6 +8,9 @@
 
 #include "Game.hpp"
 
+// Amout of money to bet
+int BET = 1;
+
 // Creates the palyers and the deck
 Game::Game(std::string &player_name, std::string &dealer_name) :
     dealer(Dealer(dealer_name)), player(Human(player_name)) {
@@ -28,9 +31,6 @@ void Game::deal_cards(){
 // plays out one hand of the game
 void Game::play(){
     
-    // Amout of money to bet
-    int bet_amount = 0;
-    
     bool cash_out = false;
     
     // While player wants to keep playing
@@ -38,20 +38,7 @@ void Game::play(){
         
         // Display the amount of money the player has
         std::cout << "\nYou have $" << player.get_money() << "\n";
-        
-        // Ask how much the player wants to bet
-        while (true){
-            std::cout << "How much do you want to bet: ";
-            std::cin >> bet_amount;
-            
-            if (bet_amount >= 0 && bet_amount <= player.get_money()){
-                break;
-            }
-            else {
-                std::cout << "Bet amount must be positive and less than current amount\n";
-            }
-        }
-        std::cout << "\n";
+    
         
         // Shuffle the deck and deal cards
         deck.shuffle();
@@ -99,28 +86,28 @@ void Game::play(){
         // Human busts
         if (!human_no_bust && dealer_no_bust){
             std::cout << "Dealer wins\n";
-            player.remove_money(bet_amount);
+            player.remove_money(BET);
         }
         // Dealer busts
         else if (human_no_bust && !dealer_no_bust){
             std::cout << player.name << " wins\n";
-            player.add_money(bet_amount);
+            player.add_money(BET);
         }
-        // Both bust
+        // Both bust --> player loses
         else if (!human_no_bust && !dealer_no_bust){
-            std::cout << "Both bust: Push\n\n";
+            std::cout << "Both bust: Dealer wins\n\n";
         }
         // Neither bust
         else {
             // Player has higher val
             if (human_hand  > dealer_hand){
                 std::cout << player.name << " wins\n";
-                player.add_money(bet_amount);
+                player.add_money(BET);
             }
             // Dealer has higher val
             else if (human_hand  < dealer_hand){
                 std::cout << "Dealer wins\n";
-                player.remove_money(bet_amount);
+                player.remove_money(BET);
             }
             // Hands are the same value
             else {
@@ -161,7 +148,6 @@ void Game::play(){
     
     
     std::cout << "\n\nFinal money: $" << player.get_money() << "\n";
-    std::cout << "Profit: $" << player.get_money() - 10 << "\n\n";
     
 }
 
