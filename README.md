@@ -1,5 +1,7 @@
 # Black Jack
-A basic command line blackjack simulator
+An easy to play terminal blackjack simulator
+
+This Project, like the Sudoku solver, was developed before I used Git Hub to show my work, all of the code was written by me, just unfortunately not using proper source control techniques. 
 ### How to play
 1) Compile the code
  ``` shell
@@ -21,21 +23,21 @@ A basic command line blackjack simulator
  Dealing cards...(push enter to reveal each card)
  
  Aric gets...
- ------------------
+  -----------------
  |  Two of Spades  |
- ------------------
+  -----------------
  Aric hand value: 2
  
  Dealer gets...
- ------------------
+  -------------------
  |  Queen of Hearts  |
- ------------------
+  -------------------
  Dealer hand value: 10
  
  Aric gets...
- ------------------
+  --------------------
  |  King of Diamonds  |
- ------------------
+  --------------------
  Aric hand value: 12
  
  Dealer gets...
@@ -44,23 +46,23 @@ A basic command line blackjack simulator
  Do you want another card? (y or n) y
  
  Aric gets...
- ------------------
+  ---------------------
  |  Seven of Diamonds  |
- ------------------
+  ---------------------
  Aric hand value: 19
  
  Do you want another card? (y or n) n
  
  Dealers hidden card...
- ------------------
+  -----------------
  |  Six of Spades  |
- ------------------
+  -----------------
  Dealer hand value: 16
  
  Dealer gets...
- ------------------
+  -------------------
  |  Queen of Spades  |
- ------------------
+  -------------------
  Dealer hand value: 26
  
  Dealer busts
