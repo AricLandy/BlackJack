@@ -11,7 +11,7 @@
 // Amout of money to bet
 int BET = 1;
 
-// Creates the palyers and the deck
+// Creates the players and the deck
 Game::Game(std::string &player_name, std::string &dealer_name) :
     dealer(Dealer(dealer_name)), player(Human(player_name)) {
 
@@ -33,6 +33,9 @@ void Game::play(){
     
     bool cash_out = false;
     
+    std::cout << "BlackJack pays 3:2 \n"
+    std::cout << "No Surrender \n"
+    
     // While player wants to keep playing
     do {
         
@@ -46,81 +49,75 @@ void Game::play(){
         std::cin.get();
         deal_cards();
         
+        
+        
         // Human gets cards
         bool human_no_bust = player.get_cards(deck);
         
+        // If human busts --> round is over
         if (!human_no_bust){
-            std::cout << "\nYou bust\n";
-        }
-
-        // Reveal dealers hidden card
-        dealer.reveal();
-        
-        // Dealer gets cards
-        bool dealer_no_bust = dealer.get_cards(deck);
-        
-        if (!dealer_no_bust){
-            std::cout << "\nDealer busts\n";
-        }
-        
-        
-        int human_hand = player.get_hand_val();
-        int dealer_hand = dealer.get_hand_val();
-        better_hand better;
-        if (player.has_ace()){
-            human_hand = better(player.get_hand_val(), player.get_ace_hand_val());
-            if (!human_no_bust && human_hand <= 21){
-                human_no_bust = true;
-            }
-        }
-        if (dealer.has_ace()){
-            dealer_hand = better(dealer.get_hand_val(), dealer.get_ace_hand_val());
-            if (!dealer_no_bust && dealer_hand <= 21){
-                dealer_no_bust = true;
-            }
-        }
-        
-        // See who wins
-        
-        std::cout << "\n";
-        // Human busts
-        if (!human_no_bust && dealer_no_bust){
-            std::cout << "Dealer wins\n";
+            std::cout << "\nYou bust --> Dealer wins\n";
             player.remove_money(BET);
         }
-        // Dealer busts
-        else if (human_no_bust && !dealer_no_bust){
-            std::cout << player.name << " wins\n";
-            player.add_money(BET);
-        }
-        // Both bust --> player loses
-        else if (!human_no_bust && !dealer_no_bust){
-            std::cout << "Both bust: Dealer wins\n\n";
-        }
-        // Neither bust
+        
+        // Human does not bust
         else {
-            // Player has higher val
-            if (human_hand  > dealer_hand){
+            // Reveal dealers hidden card
+            dealer.reveal();
+            
+            // Dealer gets cards
+            bool dealer_no_bust = dealer.get_cards(deck);
+            
+            if (!dealer_no_bust){
+                std::cout << "\nDealer busts\n";
+            }
+            
+            
+            int human_hand = player.get_hand_val();
+            int dealer_hand = dealer.get_hand_val();
+            better_hand better;
+            if (player.has_ace()){
+                human_hand = better(player.get_hand_val(), player.get_ace_hand_val());
+                if (!human_no_bust && human_hand <= 21){
+                    human_no_bust = true;
+                }
+            }
+            if (dealer.has_ace()){
+                dealer_hand = better(dealer.get_hand_val(), dealer.get_ace_hand_val());
+                if (!dealer_no_bust && dealer_hand <= 21){
+                    dealer_no_bust = true;
+                }
+            }
+            
+            // See who wins
+            
+            std::cout << "\n";
+            // We know at this point that the human did not bust (already taken care of)
+            // Dealer busts
+            if (!dealer_no_bust){
                 std::cout << player.name << " wins\n";
                 player.add_money(BET);
             }
-            // Dealer has higher val
-            else if (human_hand  < dealer_hand){
-                std::cout << "Dealer wins\n";
-                player.remove_money(BET);
-            }
-            // Hands are the same value
+            // Neither bust
             else {
-                std::cout << "Both players have " << dealer.get_hand_val() <<
-                ": Push\n";
+                // Player has higher val
+                if (human_hand  > dealer_hand){
+                    std::cout << player.name << " wins\n";
+                    player.add_money(BET);
+                }
+                // Dealer has higher val
+                else if (human_hand  < dealer_hand){
+                    std::cout << "Dealer wins\n";
+                    player.remove_money(BET);
+                }
+                // Hands are the same value
+                else {
+                    std::cout << "Both players have " << dealer.get_hand_val() <<
+                    ": Push\n";
+                }
             }
         }
-        
-        // if player loses all money they lose the game
-        if (player.get_money() <= 0){
-            std::cout << "\n$0 left -- you lose\n";
-            break;
-        }
+            
         
         
         while (true) {

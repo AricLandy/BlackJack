@@ -83,7 +83,6 @@ public:
     void remove_money(int money_in);
     
     // A human palyer can bet money on a hand
-    // starts with $10
     int money;
     
 };
