@@ -22,10 +22,15 @@ Game::Game(std::string &player_name, std::string &dealer_name) :
 
 // Starts the game by dealing the cards
 void Game::deal_cards(){
-    player.add_one_card(deck, true);
+    player.add_one_card(deck);
+    dealer.add_one_card(deck);
+    
+    std::cout << player.name << " cards: \n";
+    player.add_one_card(deck);
+    
+    // We want to hide the card here
+    std::cout << dealer.name << " cards: \n";
     dealer.add_one_card(deck, true);
-    player.add_one_card(deck, true);
-    dealer.add_one_card(deck, false);
 }
 
 // plays out one hand of the game
@@ -33,8 +38,8 @@ void Game::play(){
     
     bool cash_out = false;
     
-    std::cout << "BlackJack pays 3:2 \n"
-    std::cout << "No Surrender \n"
+    std::cout << "BlackJack pays 3:2 \n";
+    std::cout << "No Surrender \n";
     
     // While player wants to keep playing
     do {
@@ -43,13 +48,31 @@ void Game::play(){
         std::cout << "\nYou have $" << player.get_money() << "\n";
     
         
-        // Shuffle the deck and deal cards
-        deck.shuffle();
-        std::cout << "Dealing cards...(push enter to reveal each card)\n";
+        std::cout << "[Push enter to deal cards]\n";
         std::cin.get();
+        std::cin.get();
+        
         deal_cards();
         
         
+        // If dealer has Ace showing --> offer insurance
+        if (dealer.showing_ace()){
+            while (true) {
+                std::cout << "Dealer showing ace. Insurance? (y/n) ";
+                char decision;
+                std::cin >> decision;
+                if (decision == 'y'){
+                    break;
+                }
+                else if (decision == 'n'){
+                    break;
+                }
+                else {
+                    std::cout << "Please enter y or n\n";
+                }
+            }
+            
+        }
         
         // Human gets cards
         bool human_no_bust = player.get_cards(deck);
@@ -62,8 +85,11 @@ void Game::play(){
         
         // Human does not bust
         else {
-            // Reveal dealers hidden card
-            dealer.reveal();
+            
+            // Reveal dealer cards
+            std::cout << "\nRevealing Dealer's cards...\n";
+            dealer.print_hand(false);
+            std::cout << "\n";
             
             // Dealer gets cards
             bool dealer_no_bust = dealer.get_cards(deck);

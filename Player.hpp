@@ -21,9 +21,9 @@ class Player {
 public:
     Player(std::string &name_in);
     
-    // Adds one card to the palyers hand no matter what
+    // Adds one card to the players hand no matter what
     // used for dealing out initial cards
-    void add_one_card(Deck &d, bool print);
+    void add_one_card(Deck &d, bool hide_first=false);
     
     // Returns the hand_val of the player
     int get_hand_val();
@@ -32,13 +32,19 @@ public:
     int get_ace_hand_val();
     
     // Deals one card to a player
-    void deal_one(Deck &d, Player &p, bool print, std::string format);
+    void deal_one(Deck &d, Player &p, bool hide_first=false);
+    
+    // Prints the players hand (must be overwritten)
+    void print_hand(bool hide_first=false);
     
     // Returns true if the player has an ace
     bool has_ace();
     
     // Resets the palyer for the next hand
     void reset();
+    
+    // Prints the value of the hand (or two values if ace)
+    void print_hand_val();
 
     // Vector fo the dealers cards
     std::vector<Card> player_cards;
@@ -98,9 +104,6 @@ public:
     // Dealer ctor calls player ctor
     Dealer(std::string &name_in);
     
-    // Reveals (prints) the dealers hidden card
-    void reveal();
-    
     // Adds a card to the dealers hand if the dealer is under 16
     // returns false if dealer busts
     bool get_cards(Deck & d);
@@ -108,6 +111,9 @@ public:
     // Returns true if the dealer should take another card
     // false if not
     bool take_card();
+    
+    // Returns true if the dealer is showing an Ace (used for insurance)
+    bool showing_ace();
     
 };
 

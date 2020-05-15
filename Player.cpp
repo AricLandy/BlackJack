@@ -15,8 +15,8 @@ Player::Player(std::string &name_in) : name(name_in), hand_val(0), ace(false), a
 
 
 
-void Player::add_one_card(Deck &d, bool print){
-    deal_one(d, *this, print, "");
+void Player::add_one_card(Deck &d, bool hide_first){
+    deal_one(d, *this, hide_first);
 }
 
 
@@ -36,7 +36,7 @@ int Player::get_ace_hand_val(){
 
 
 // Helper function that deals one card to a player
-void Player::deal_one(Deck &d, Player &p, bool print, std::string format){
+void Player::deal_one(Deck &d, Player &p, bool hide_first){
     
     // Add the next card to Players hand
     p.player_cards.push_back(d.deal());
@@ -59,25 +59,15 @@ void Player::deal_one(Deck &d, Player &p, bool print, std::string format){
     // Get the suit and values
     std::string suit = card_suit_string(p.player_cards.back());
     std::string value = card_val_string(p.player_cards.back());
+    
 
-    std::cout << "\n";
-    std::cout << p.name << " gets...";
-    
-    
-    if (print){
-        p.player_cards.back().print(format);
-        std::cout << p.name << " hand value: " << p.hand_val;
-        
-        // if the player has an ace and two possible values
-        if (ace && ace_hand_val <= 21){
-            std::cout << " or " << p.ace_hand_val << "\n";
+    // Print the cards and the hand value
+    // We only want to print the hand when the player has at least two cards
+    if (p.player_cards.size() >= 2){
+        p.print_hand(hide_first);
+        if (!hide_first){
+            p.print_hand_val();
         }
-        else{
-            std::cout << "\n";
-        }
-    }
-    else {
-        std::cout << "\n---Card Hidden---\n";
     }
     
 }
@@ -102,7 +92,6 @@ void Player::reset(){
 }
 
 
-
 // Dealer ctor calls player ctor
 Dealer::Dealer(std::string &name_in) : Player(name_in) {}
 
@@ -115,7 +104,8 @@ bool Dealer::get_cards(Deck & d){
     // Get card if hand is less than 17
     while (take_card()){
         // Deal one card to the dealer
-        deal_one(d, *this, true, "");
+        std::cout << name << " hits...\n";
+        deal_one(d, *this);
     }
     
     // return true if not bust, false if bust
@@ -153,18 +143,50 @@ bool Dealer::take_card(){
 
 
 
-void Dealer::reveal(){
-    std::cout << "\nDealers hidden card...\n";
-    player_cards.back().print("");
-    std::cout << "Dealer hand value: " << hand_val;
+void Player::print_hand_val(){
     
+    std::cout << name << " hand value: " << hand_val;
     // if the player has an ace and two possible values
     if (ace && ace_hand_val <= 21){
-        std::cout << " or " << ace_hand_val << "\n";
+        std::cout << " or " << ace_hand_val;
     }
-    else{
-        std::cout << "\n";
+    std::cout << "\n\n";
+}
+
+
+bool Dealer::showing_ace(){
+    // TODO: Assert exactly two cards in hand here
+    return player_cards[1].value == Values::Ace;
+}
+
+
+// Prints the card to output
+void Player::print_hand(bool hide_first){
+    
+    std::string middle;
+    std::string line;
+    for(unsigned i = 0; i < player_cards.size(); ++i){
+        
+        Card card = player_cards[i];
+        
+        std::string card_description;
+        
+        // Hide the first card if dealer has two or fewer cards
+        if (hide_first && i == 0){
+            card_description = "|  *****  | ";
+        }
+        else{
+            card_description = "|  " + card_val_string(card) + " of " + card_suit_string(card) + "  | ";
+        }
+        
+        middle += card_description;
+        line += " " + std::string(card_description.size()-3, '-') + "  ";
     }
+    
+    
+    std::cout << line << "\n";
+    std::cout << middle << "\n";
+    std::cout << line << "\n";
 }
 
 
@@ -210,7 +232,7 @@ bool Human::get_cards(Deck & d){
         
         // If the player wants another card
         if (choice == 'y'){
-            deal_one(d, *this, true, "\n");
+            deal_one(d, *this);
         }
         else if (choice == 'n'){
             break;

@@ -16,6 +16,9 @@
 #include <string>
 #include <sstream>
 
+
+
+
 using pair = std::pair<std::string, std::string>;
 using vec = std::vector<std::string>;
 
@@ -31,9 +34,6 @@ enum Values { Two = 2, Three = 3, Four = 4, Five = 5, Six = 6, Seven = 7, Eight 
 struct Card {
     // Card ctor
     Card(Values value_in, Suits suit_in);
-    
-    // Prints the card to output
-    void print(std::string start);
     
     // Returns the value of the card
     int get_value();
@@ -62,6 +62,9 @@ private:
     
     // Holds the cards in the deck
     std::vector<Card> cards;
+    
+    // initializes/resets the deck
+    void reset_deck();
 
 };
 

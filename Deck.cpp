@@ -11,25 +11,13 @@
 #include <algorithm>
 #include <iterator>
 
+// Number of decks
+unsigned NUM_DECKS = 2;
 
 // Card ctor
 // Assigns values to member variables
 Card::Card(Values value_in, Suits suit_in)
 : value(value_in), suit(suit_in) {}
-
-
-// Prints the card to output
-void Card::print(std::string start){
-    
-    // Wait for user to push enter
-    // allows the game to move at the users pace
-    //std::cout << "\n";
-    std::cin.get();
-    std::cout << start;
-    std::cout << " ------------------\n";
-    std::cout << "|  " << card_val_string(*this) << " of " << card_suit_string(*this)<< "  |\n";
-    std::cout << " ------------------\n";
-}
 
 
 
@@ -43,25 +31,35 @@ int Card::get_value(){
 // Deck ctor
 // Adds all cards to the cards vector
 Deck::Deck(){
+    // Initialize the deck
+    reset_deck();
+}
+
+
+void Deck::reset_deck(){
     
     std::vector<Suits> suits = {Suits::Hearts, Suits::Diamonds, Suits::Spades, Suits::Clubs};
     std::vector<Values> values = {Values::Two, Values::Three, Values::Four, Values::Five,
         Values::Six, Values::Seven, Values::Eight, Values::Nine, Values::Ten, Values::Jack,
         Values::Queen, Values::King, Values::Ace};
     
-    for (Suits suit : suits){
-        for(Values val : values){
-            Card temp(val, suit);
-            cards.push_back(temp);
-        
+    for (unsigned i = 0; i < NUM_DECKS; ++i){
+        for (Suits suit : suits){
+            for(Values val : values){
+                Card temp(val, suit);
+                cards.push_back(temp);
+            }
         }
     }
+    // Shuffle the cards
+    shuffle();
 }
 
 
 
 // Shuffles the deck using std shuffle and Mersenne Twister
 void Deck::shuffle(){
+    std::cout << "AAA" << cards.size()  << "\n";
     std::random_device rand;
     std::mt19937 g(rand());
     std::shuffle(cards.begin(), cards.end(), g);
@@ -71,6 +69,13 @@ void Deck::shuffle(){
 
 // Returns the card at the back of the deck and removes it
 Card Deck::deal(){
+    
+    // If the deck is empty --> reset it
+    if (cards.size() == 0){
+        std::cout << "\nDeck empty... Shuffling cards...\n";
+        reset_deck();
+    }
+    
     Card temp = cards.back();
     cards.pop_back();
     return temp;
