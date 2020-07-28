@@ -20,19 +20,20 @@ void Player::add_one_card(Deck &d, bool hide_first){
 }
 
 
-
-// Returns the hand_val of the player
+// Returns the best hand of the player
+// "best" because will return better value of ace in hand
 int Player::get_hand_val(){
+    if (ace && ace_hand_val < 21 && ace_hand_val > hand_val){
+        return ace_hand_val;
+    }
     return hand_val;
 }
-
 
 
 // Returns the value of the ace_hand_val
 int Player::get_ace_hand_val(){
     return ace_hand_val;
 }
-
 
 
 // Helper function that deals one card to a player
@@ -88,13 +89,15 @@ void Player::reset(){
     hand_val = 0;
     ace = false;
     ace_hand_val = 0;
-    
+}
+
+int Player::black_jack(){
+    return player_cards.size() == 2 && hand_val == 21;
 }
 
 
 // Dealer ctor calls player ctor
 Dealer::Dealer(std::string &name_in) : Player(name_in) {}
-
 
 
 // Adds a card to the dealers hand if the dealer is under 16
@@ -111,7 +114,6 @@ bool Dealer::get_cards(Deck & d){
     // return true if not bust, false if bust
     return (hand_val <= 21);
 }
-
 
 
 // Returns true if the dealer should take another card
@@ -132,7 +134,6 @@ bool Dealer::take_card(){
         else {
             return true;
         }
-        
     }
     
     // No ace
@@ -140,7 +141,6 @@ bool Dealer::take_card(){
         return (hand_val < 17);
     }
 }
-
 
 
 void Player::print_hand_val(){
@@ -196,46 +196,69 @@ void Player::print_hand(bool hide_first){
 Human::Human(std::string &name_in) : Player(name_in), money(0) {}
 
 
-
 // Returns the amount of money the player has
 int Human::get_money(){
     return money;
 }
 
 
-
 // Sets the players money
 void Human::add_money(int money_in){
-    money += money_in;
+    int winnings = money_in + (money_in * double_down);
+    if (black_jack()) { winnings *= 1.5; }
+    money += winnings;
 }
 
 
+// TODO: lets remove this duplication
 
 // Sets the players money
 void Human::remove_money(int money_in){
-    money -= money_in;
+    money -= money_in + (money_in * double_down);
 }
 
 
+std::string trim(const std::string& str){
+    size_t first = str.find_first_not_of(' ');
+    if (std::string::npos == first)
+    {
+        return str;
+    }
+    size_t last = str.find_last_not_of(' ');
+    return str.substr(first, (last - first + 1));
+}
 
+
+// Returns true if the player wants to double down
 bool Human::get_cards(Deck & d){
     
     // While it is still possible for the human to get cards
     while (hand_val < 21){
         
         // Ask the player if they want a card
-        std::cout << "\nDo you want another card? (y or n) ";
-        char choice;
+        std::string message = "\nDo you want another card? (y or n";
+        message += player_cards.size() == 2 ? " or dd): " : "): ";
+        std::cout << message;
+        std::string choice;
         std::cin >> choice;
-        
-        //std::cout << "\n";
+        choice = trim(choice);
         
         // If the player wants another card
-        if (choice == 'y'){
+        if (choice == "y"){
             deal_one(d, *this);
         }
-        else if (choice == 'n'){
+        else if (choice == "n"){
             break;
+        }
+        else if (choice == "dd"){
+            if (player_cards.size() == 2){
+                deal_one(d, *this);
+                double_down = true;
+                break;
+            }
+            else {
+                std::cout << "Can only double down after exectly two cards" << std::endl;
+            }
         }
         
         // if bust
@@ -243,6 +266,9 @@ bool Human::get_cards(Deck & d){
             return false;
         }
     }
+    
+    std::cin.get();
+    std::cin.get();
     
     // return true if not bust, false if bust
     return (hand_val <= 21);

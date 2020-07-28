@@ -40,8 +40,9 @@ private:
 
 // Comparator that returns the value of the better hand
 // used when a player has an ace and both possibilities are valid (when the ace is 1 and when it is 11)
+enum winner { player1, player2, tie };
 struct better_hand {
-    int operator()(int val1, int val2);
+    winner operator()(Player * p1, Player * p2);
 };
 
 

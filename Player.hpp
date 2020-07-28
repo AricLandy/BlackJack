@@ -45,15 +45,16 @@ public:
     
     // Prints the value of the hand (or two values if ace)
     void print_hand_val();
+    
+    // Returns the number of cards the player has
+    int black_jack();
 
     // Vector fo the dealers cards
     std::vector<Card> player_cards;
     
     // Holds the players name
     std::string name;
-    
-protected:
-    
+        
     // Holds the current value of the players hand
     // if the palyer has an ace, both elements of the pair are used
     int hand_val;
@@ -76,7 +77,7 @@ public:
     Human(std::string &name_in);
         
     // Adds a card to a players hand if they want
-    // returns false if player busts
+    // returns true if the player wants to double down
     bool get_cards(Deck &d);
     
     // Returns the amount of money the player has
@@ -91,6 +92,8 @@ public:
     // A human palyer can bet money on a hand
     int money;
     
+    // Tracks if the human has doubled down
+    bool double_down = false;
 };
 
 
