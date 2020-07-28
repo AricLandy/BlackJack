@@ -81,16 +81,16 @@ public:
     bool get_cards(Deck &d);
     
     // Returns the amount of money the player has
-    int get_money();
+    double get_money();
     
     // Sets the players money
-    void add_money(int money_in);
+    void add_money(double money_in);
     
     // Sets the players money
-    void remove_money(int money_in);
+    void remove_money(double money_in);
     
     // A human palyer can bet money on a hand
-    int money;
+    double money;
     
     // Tracks if the human has doubled down
     bool double_down = false;

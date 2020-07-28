@@ -84,7 +84,6 @@ bool Player::has_ace(){
 
 // Resets the palyer for the next hand
 void Player::reset(){
-    
     player_cards.clear();
     hand_val = 0;
     ace = false;
@@ -197,15 +196,17 @@ Human::Human(std::string &name_in) : Player(name_in), money(0) {}
 
 
 // Returns the amount of money the player has
-int Human::get_money(){
+double Human::get_money(){
     return money;
 }
 
 
 // Sets the players money
-void Human::add_money(int money_in){
-    int winnings = money_in + (money_in * double_down);
-    if (black_jack()) { winnings *= 1.5; }
+void Human::add_money(double money_in){
+    double winnings = money_in + (money_in * double_down);
+    if (black_jack()) {
+        winnings *= 1.5;
+    }
     money += winnings;
 }
 
@@ -213,7 +214,7 @@ void Human::add_money(int money_in){
 // TODO: lets remove this duplication
 
 // Sets the players money
-void Human::remove_money(int money_in){
+void Human::remove_money(double money_in){
     money -= money_in + (money_in * double_down);
 }
 
@@ -266,9 +267,6 @@ bool Human::get_cards(Deck & d){
             return false;
         }
     }
-    
-    std::cin.get();
-    std::cin.get();
     
     // return true if not bust, false if bust
     return (hand_val <= 21);

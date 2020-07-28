@@ -56,6 +56,7 @@ void Game::play(){
         
         
         // If dealer has Ace showing --> offer insurance
+        // TODO: put this into its own function
         if (dealer.showing_ace()){
             while (true) {
                 std::cout << "Dealer showing ace. Insurance? (y/n) ";
@@ -63,7 +64,7 @@ void Game::play(){
                 std::cin >> decision;
                 if (decision == 'y'){
                     //--- TODO ---
-                    std::cout << "Statistically this is a poor decision and therefore the game is not gonna let you do it\n"; // Lol
+                    std::cout << "Statistically this is a poor decision and therefore this game is not gonna let you do it\n"; // Lol
                     break;
                 }
                 else if (decision == 'n'){
@@ -192,7 +193,7 @@ winner better_hand::operator()(Player * p1, Player * p2){
         if (p1BJ && p2BJ){
             return winner::tie;
         }
-        if (p1BJ) { return winner::player1; }
+        if (p1BJ) { std::cout << "SLAT"; return winner::player1; }
         if (p2BJ) { return winner::player2; }
         
         // No busts, same hand val, no blackjacks --> tie
