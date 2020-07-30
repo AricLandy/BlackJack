@@ -55,7 +55,7 @@ void offer_insurance(){
 
 bool cash_out(Human& player, Dealer& dealer){
     while (true) {
-        std::cout << "You have $" << player.get_money() << "\n";
+        std::cout << "\nYou have $" << player.get_money() << "\n";
         std::cout << "\nCash Out? (y or n) ";
         char decision;
         std::cin >> decision;
@@ -72,6 +72,60 @@ bool cash_out(Human& player, Dealer& dealer){
         }
     }
     return true;
+}
+
+bool play_hand(Human& player, Deck& deck, bool playing_split_hand){
+    // Human gets cards
+    bool human_no_bust = player.get_cards(deck, playing_split_hand);
+    
+    // If human busts --> round is over
+    if (!human_no_bust){
+        std::cout << "\nYou bust --> Dealer wins\n";
+        player.remove_money(BET, playing_split_hand);
+    }
+    
+    return human_no_bust;
+}
+
+bool dealer_get_cards(Dealer& dealer, Deck& deck){
+    // Reveal dealer cards
+    std::cout << "\nRevealing Dealer's cards...\n";
+    dealer.hand.print_hand(false);
+    std::cout << "\n";
+    
+    // Dealer gets cards
+    return dealer.get_cards(deck);
+}
+
+void decide_winner(Human& player, Dealer& dealer, bool dealer_no_bust,  bool playing_split_hand){
+
+    if (!dealer_no_bust){
+        std::cout << "\nDealer busts\n";
+        std::cout << player.name << " wins\n";
+        player.add_money(BET, playing_split_hand);
+    }
+    else {
+        // Neither player busts
+        better_hand better;
+        Hand human_hand = playing_split_hand ? player.split_hand : player.hand;
+        winner winner = better(&human_hand, &dealer.hand);
+        
+        // Player wins
+        if (winner == winner::player1){
+            std::cout << player.name << " wins";
+            player.add_money(BET, playing_split_hand);
+        }
+        // Dealer wins
+        else if (winner == winner::player2){
+            std::cout << "Dealer wins";
+            player.remove_money(BET, playing_split_hand);
+        }
+        // Tie
+        else {
+            std::cout << "Both players have " << dealer.hand.get_hand_val() <<
+            ": Push";
+        }
+    }
 }
 
 // plays out one hand of the game
@@ -100,6 +154,7 @@ void Game::play(){
         std::vector<Card> temp(2, a);
         std::string s = "testy";
         player.hand = Hand(s, temp);
+        player.hand.print_hand();
         
         
         // If dealer has Ace showing --> offer insurance
@@ -110,52 +165,40 @@ void Game::play(){
         // Check if possible for human to split and ask them
         bool human_split_hand = player.split_players_hand();
         
-        // Human gets cards
-        bool human_no_bust = player.get_cards(deck, false);
-        
-        // If human busts --> round is over
-        if (!human_no_bust){
-            std::cout << "\nYou bust --> Dealer wins\n";
-            player.remove_money(BET, false);
+        // Play human hand
+        if (human_split_hand){
+            std::cout << "\n\n--- Playing hand 1 ---\n";
+            player.hand.print_hand();
         }
         
-        // Human does not bust
-        else {
-            // Reveal dealer cards
-            std::cout << "\nRevealing Dealer's cards...\n";
-            dealer.hand.print_hand(false);
-            std::cout << "\n";
-            
-            // Dealer gets cards
-            bool dealer_no_bust = dealer.get_cards(deck);
-            
-            if (!dealer_no_bust){
-                std::cout << "\nDealer busts\n";
-                std::cout << player.name << " wins\n";
-                player.add_money(BET, false);
-            }
-            else {
-                // Neither player busts
-                better_hand better;
-                winner winner = better(&player, &dealer);
-            
-                // Player wins
-                if (winner == winner::player1){
-                    std::cout << player.name << " wins\n";
-                    player.add_money(BET, false);
-                }
-                // Dealer wins
-                else if (winner == winner::player2){
-                    std::cout << "Dealer wins\n";
-                    player.remove_money(BET, false);
-                }
-                // Tie
-                else {
-                    std::cout << "Both players have " << dealer.hand.get_hand_val() <<
-                    ": Push\n";
-                }
-            }
+        bool player_no_bust = play_hand(player, deck, false);
+        bool player_no_bust_split;
+        if (human_split_hand){
+            std::cout << "\n\n--- Playing hand 2 ---\n";
+            player.split_hand.print_hand();
+            player_no_bust_split = play_hand(player, deck, true);
         }
+        
+        // Dealer plays hand
+        bool dealer_no_bust;
+        if (player_no_bust || (human_split_hand && player_no_bust_split)){
+            dealer_no_bust = dealer_get_cards(dealer, deck);
+        }
+        
+        // Decide winner
+        if (player_no_bust){
+            if (human_split_hand){
+                std::cout << "\nHand 1 result: ";
+            }
+            decide_winner(player, dealer, dealer_no_bust, false);
+        }
+        // Decide winner for split hand if player split their hand
+        if (human_split_hand && player_no_bust_split){
+            std::cout << "\nHand 2 result: ";
+            decide_winner(player, dealer, dealer_no_bust, true);
+        }
+        
+
         
     } while (!cash_out(player, dealer));
     
@@ -165,45 +208,45 @@ void Game::play(){
 
 
 
-winner better_hand::operator()(Player * p1, Player * p2){
+winner better_hand::operator()(Hand * h1, Hand * h2){
    
-    int p1Val = p1->hand.get_hand_val();
-    int p2Val = p2->hand.get_hand_val();
+    int h1Val = h1->get_hand_val();
+    int h2Val = h2->get_hand_val();
     
     // This comparator should not be called if hands are above 21 (Although if it is this is a safety)
     // Both bust
-    if (p1Val > 21 && p2Val > 21){
+    if (h1Val > 21 && h2Val > 21){
         return winner::tie;
     }
     
     // P1 buts
-    if (p1Val > 21){
+    if (h1Val > 21){
         return winner::player2;
     }
     // P2 busts
-    if (p2Val > 21){
+    if (h2Val > 21){
         return winner::player1;
     }
     
     // if past this point both are valid
     // so return better hand
     
-    if (p1Val > p2Val){
+    if (h1Val > h2Val){
         return winner::player1;
     }
-    else if (p2Val > p1Val){
+    else if (h2Val > h1Val){
         return winner::player2;
     }
     else { // Same hand value
         // check for blackjack
-        bool p1BJ = p1->hand.black_jack();
-        bool p2BJ = p2->hand.black_jack();
+        bool h1BJ = h1->black_jack();
+        bool h2BJ = h2->black_jack();
             
-        if (p1BJ && p2BJ){
+        if (h1BJ && h2BJ){
             return winner::tie;
         }
-        if (p1BJ) { std::cout << "SLAT"; return winner::player1; }
-        if (p2BJ) { return winner::player2; }
+        if (h1BJ) { return winner::player1; }
+        if (h2BJ) { return winner::player2; }
         
         // No busts, same hand val, no blackjacks --> tie
         return winner::tie;

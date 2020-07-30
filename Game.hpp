@@ -42,7 +42,7 @@ private:
 // used when a player has an ace and both possibilities are valid (when the ace is 1 and when it is 11)
 enum winner { player1, player2, tie };
 struct better_hand {
-    winner operator()(Player * p1, Player * p2);
+    winner operator()(Hand * h1, Hand * p2);
 };
 
 

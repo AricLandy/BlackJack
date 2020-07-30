@@ -75,7 +75,7 @@ void Hand::add_one_card(Deck& deck, bool hide_first){
 // Returns the best hand of the player
 // "best" because will return better value of ace in hand
 int Hand::get_hand_val(){
-    if (ace && ace_hand_val < 21 && ace_hand_val > hand_val){
+    if (ace && ace_hand_val <= 21 && ace_hand_val > hand_val){
         return ace_hand_val;
     }
     return hand_val;
@@ -229,6 +229,7 @@ void Human::add_money(double money_in, bool use_split_hand){
         winnings *= 1.5;
     }
     
+    std::cout << "\n" << name << " gained $" << winnings << "\n";
     money += winnings;
 }
 
@@ -238,7 +239,12 @@ void Human::remove_money(double money_in, bool use_split_hand){
     
     bool curr_double_down = use_split_hand ? split_hand_double_down : double_down;
     
-    money -= money_in + (money_in * curr_double_down);
+    
+    double money_lost = money_in + (money_in * curr_double_down);
+    
+    std::cout << "\n" << name << " lost $" << money_lost << "\n";
+    
+    money -= money_lost;
 }
 
 bool can_split(const Hand& hand){
