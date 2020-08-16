@@ -7,9 +7,10 @@
 //
 
 #include "Game.hpp"
+#include "Globals.hpp"
 
 // Amout of money to bet
-int BET = 1;
+unsigned BET = 1;
 
 // Creates the players and the deck
 Game::Game(std::string &player_name, std::string &dealer_name) :
@@ -36,12 +37,12 @@ void Game::deal_cards(){
 
 void offer_insurance(){
     while (true) {
-        std::cout << "Dealer showing ace. Insurance? (y/n) ";
+        std::cout << "Dealer showing ace. Insurance? (y or n) ";
         char decision;
         std::cin >> decision;
         if (decision == 'y'){
             //--- TODO ---
-            std::cout << "Statistically this is a poor decision and therefore this game is not gonna let you do it\n"; // Lol
+            std::cout << "\nStatistically this is a poor decision and therefore this game is not gonna let you do it\n"; // Lol
             break;
         }
         else if (decision == 'n'){
@@ -56,7 +57,7 @@ void offer_insurance(){
 bool cash_out(Human& player, Dealer& dealer){
     while (true) {
         std::cout << "\nYou have $" << player.get_money() << "\n";
-        std::cout << "\nCash Out? (y or n) ";
+        std::cout << "\nCash Out? (y or n) (type b to change bet): ";
         char decision;
         std::cin >> decision;
         if (decision == 'y'){
@@ -66,6 +67,12 @@ bool cash_out(Human& player, Dealer& dealer){
             dealer.reset();
             player.reset();
             return false;
+        }
+        else if (decision == 'b'){
+            std::cout << "\nNew bet amount: ";
+            std::string amount;
+            std::cin >> amount;
+            
         }
         else {
             std::cout << "Please enter y or n\n";
@@ -80,7 +87,7 @@ bool play_hand(Human& player, Deck& deck, bool playing_split_hand){
     
     // If human busts --> round is over
     if (!human_no_bust){
-        std::cout << "\nYou bust --> Dealer wins\n";
+        std::cout << "\nYou bust --> Dealer wins";
         player.remove_money(BET, playing_split_hand);
     }
     
@@ -91,7 +98,7 @@ bool dealer_get_cards(Dealer& dealer, Deck& deck){
     // Reveal dealer cards
     std::cout << "\nRevealing Dealer's cards...\n";
     dealer.hand.print_hand(false);
-    std::cout << "\n";
+    dealer.hand.print_hand_val();
     
     // Dealer gets cards
     return dealer.get_cards(deck);
@@ -100,8 +107,8 @@ bool dealer_get_cards(Dealer& dealer, Deck& deck){
 void decide_winner(Human& player, Dealer& dealer, bool dealer_no_bust,  bool playing_split_hand){
 
     if (!dealer_no_bust){
-        std::cout << "\nDealer busts\n";
-        std::cout << player.name << " wins\n";
+        std::cout << "\nDealer busts";
+        std::cout << "\n" << player.name << " wins\n";
         player.add_money(BET, playing_split_hand);
     }
     else {
@@ -128,11 +135,17 @@ void decide_winner(Human& player, Dealer& dealer, bool dealer_no_bust,  bool pla
     }
 }
 
+void print_rules(){
+    std::cout << "\nNumber of decks: " << NUM_DECKS << "\n";
+    std::cout << "BlackJack pays 3:2 \n";
+    std::cout << "No Surrender \n";
+    std::cout << "Double after split allowed\n";
+}
+
 // plays out one hand of the game
 void Game::play(){
     
-    std::cout << "BlackJack pays 3:2 \n";
-    std::cout << "No Surrender \n";
+    print_rules();
     
     // While player wants to keep playing
     do {
@@ -148,13 +161,24 @@ void Game::play(){
         // Deal cards to human and dealer
         deal_cards();
         
+//        // Tests splitting hand
+//        Card a(Values::Ace, Suits::Spades);
+//        Card b(Values::Four, Suits::Spades);
+//        Card c(Values::Seven, Suits::Spades);
+//        Card d(Values::Eight, Suits::Spades);
+//
+//
+//        std::vector<Card> temp;
+//        temp.push_back(a);
+//        temp.push_back(b);
+//        temp.push_back(c);
+//        temp.push_back(d);
+//        std::string s = "testy";
+//        player.hand = Hand(s, temp);
+//        player.hand.print_hand();
         
-        Card a(Values::Ten, Suits::Spades);
         
-        std::vector<Card> temp(2, a);
-        std::string s = "testy";
-        player.hand = Hand(s, temp);
-        player.hand.print_hand();
+        player.set_dealer_upcard(dealer.get_up_card());
         
         
         // If dealer has Ace showing --> offer insurance

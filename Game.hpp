@@ -5,6 +5,7 @@
 //  Created by Aric Landy on 1/7/19.
 //  Copyright © 2019 Aric Landy. All rights reserved.
 //
+#pragma once
 
 #ifndef Game_hpp
 #define Game_hpp

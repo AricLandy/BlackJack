@@ -10,9 +10,7 @@
 #include <random>
 #include <algorithm>
 #include <iterator>
-
-// Number of decks
-unsigned NUM_DECKS = 2;
+#include "Globals.hpp"
 
 // Card ctor
 // Assigns values to member variables
@@ -59,7 +57,7 @@ void Deck::reset_deck(){
 
 // Shuffles the deck using std shuffle and Mersenne Twister
 void Deck::shuffle(){
-    std::cout << "AAA" << cards.size()  << "\n";
+//    std::cout << "AAA" << cards.size()  << "\n";
     std::random_device rand;
     std::mt19937 g(rand());
     std::shuffle(cards.begin(), cards.end(), g);

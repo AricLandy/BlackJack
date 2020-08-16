@@ -6,6 +6,8 @@
 //  Copyright © 2019 Aric Landy. All rights reserved.
 //
 
+#pragma once
+
 #ifndef Deck_hpp
 #define Deck_hpp
 
@@ -15,8 +17,6 @@
 #include <unordered_map>
 #include <string>
 #include <sstream>
-
-
 
 
 using pair = std::pair<std::string, std::string>;

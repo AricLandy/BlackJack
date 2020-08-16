@@ -6,6 +6,8 @@
 //  Copyright © 2019 Aric Landy. All rights reserved.
 //
 
+#pragma once
+
 #ifndef Player_hpp
 #define Player_hpp
 
@@ -17,6 +19,9 @@ class Hand;
 class Player;
 class Dealer;
 class Human;
+class Strategy;
+
+extern unsigned NUM_DECKS;
 
 // Deals one card to a player
 void deal_one(Deck& deck, Hand& hand, bool hide_first=false);
@@ -52,6 +57,9 @@ public:
     
     // Returns the number of cards the player has
     int black_jack();
+    
+    // Returns true if the hand has a soft total
+    bool soft_total();
     
     // Vector for the cards in the hand
     std::vector<Card> cards;
@@ -130,6 +138,15 @@ public:
     
     // Holds the humans second hand in the case they split their hand
     Hand split_hand;
+    
+    // Holds the dealer up-card (used for strategy)
+    Card* dealer_up_card;
+    
+    // Sets the dealer upcard
+    void set_dealer_upcard(Card* dealer_card);
+    
+    // Holds the strategy object for the player
+    Strategy* strategy;
 };
 
 
@@ -154,9 +171,46 @@ public:
     // Returns true if the dealer is showing an Ace (used for insurance)
     bool showing_ace();
     
+    // Returns the dealers upcard
+    Card* get_up_card();
+    
 };
 
 
+
+// This class generates basic strategy suggestions for a player
+class Strategy {
+    
+public:
+    
+    // Prints decision for player based on cards
+    void calculate_decision(Hand* player_cards, Card* dealer_card, bool split);
+    
+    // Called anytime a card is visible to the player
+    void card_seen(const Card& card);
+    
+    // Resets all cards seen
+    void reset();
+    
+    // Returns the current running count
+    int get_running_count();
+    
+    // Returns the current true count
+    int get_true_count();
+    
+    
+private:
+    
+    // Calculates the total value of the hand without one ace
+    int calc_non_ace_total(Hand * hand);
+    
+    // Holds the current running count
+    int running_count = 0;
+    
+    // Holds the total number of cards seen
+    int total_cards_seen = 0;
+    
+};
 
 
 #endif /* Player_hpp */

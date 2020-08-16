@@ -7,8 +7,19 @@
 //
 
 #include "Player.hpp"
+#include "Globals.hpp"
 
 
+std::string trim(const std::string& str){
+    size_t first = str.find_first_not_of(' ');
+    if (std::string::npos == first){
+        return str;
+    }
+    size_t last = str.find_last_not_of(' ');
+    return str.substr(first, (last - first + 1));
+}
+
+extern void calculate_decision(const Hand* player_cards, const Card* dealer_card);
 
 // Deals one card to a hand
 void deal_one(Deck &deck, Hand &hand, bool hide_first){
@@ -141,6 +152,17 @@ void Hand::print_hand(bool hide_first){
 }
 
 
+bool Hand::soft_total(){
+    
+    if (has_ace() && get_ace_hand_val() <= 21){
+        return true;
+    }
+    return false;
+}
+
+
+
+
 /// Player class
 
 // Player ctor just sets the hand value initially to zero
@@ -166,6 +188,10 @@ bool Dealer::get_cards(Deck & d){
     
     // Get card if hand is less than 17
     while (take_card()){
+        
+        std::cout << "";
+        std::cin.get();
+        
         // Deal one card to the dealer
         std::cout << name << " hits...\n";
         deal_one(d, hand, false);
@@ -190,6 +216,14 @@ bool Dealer::showing_ace(){
 }
 
 
+// Returns the dealers upcard
+Card* Dealer::get_up_card(){
+    return &hand.cards[1];
+}
+
+
+
+
 /// Human Class
 
 // Human ctor calls player ctor
@@ -208,6 +242,8 @@ void Human::reset(){
     double_down = false;
     player_split_hand = false;
     split_hand_double_down = false;
+    
+    dealer_up_card = nullptr;
 }
 
 
@@ -267,12 +303,16 @@ bool Human::split_players_hand(){
     
     // Ask the user if they want to
     while (true) {
-        std::cout << "Do you want to split your hand? (y or n): ";
-        char decision;
+        std::cout << "\nDo you want to split your hand? (y or n): ";
+        std::string decision;
         std::cin >> decision;
+        decision = trim(decision);
         
-        if (decision == 'y') { break; }
-        else if (decision == 'n') { return false; }
+        if (decision == "y") { break; }
+        else if (decision == "n") { return false; }
+        else if (decision == "help" || decision == "h"){
+            strategy->calculate_decision(&hand, dealer_up_card, true);
+        }
         else { std::cout << "Please enter y or n\n"; }
     }
     
@@ -282,17 +322,6 @@ bool Human::split_players_hand(){
     split_hand = Hand(name, cards);
     player_split_hand = true;
     return true;
-}
-
-
-std::string trim(const std::string& str){
-    size_t first = str.find_first_not_of(' ');
-    if (std::string::npos == first)
-    {
-        return str;
-    }
-    size_t last = str.find_last_not_of(' ');
-    return str.substr(first, (last - first + 1));
 }
 
 
@@ -331,6 +360,9 @@ bool Human::get_cards(Deck& deck, bool use_split_hand){
                 std::cout << "Can only double down after exectly two cards" << std::endl;
             }
         }
+        else if (choice == "help" || choice == "h"){
+            strategy->calculate_decision(curr_hand, dealer_up_card, false);
+        }
         
         // if bust
         if (curr_hand->hand_val > 21){
@@ -341,3 +373,198 @@ bool Human::get_cards(Deck& deck, bool use_split_hand){
     // return true if not bust, false if bust
     return (curr_hand->hand_val <= 21);
 }
+
+
+// Sets the dealer upcard
+void Human::set_dealer_upcard(Card* dealer_card){
+    dealer_up_card = dealer_card;
+}
+
+
+
+
+int Strategy::calc_non_ace_total(Hand * hand){
+    
+    int total = 0;
+    bool ace = false;
+    
+    for (auto card : hand->cards){
+        if (card.value == Values::Ace){
+            if (ace) { total += 1; }
+            ace = true;
+            continue;
+        }
+        else{
+            total += card.get_value();
+        }
+    }
+    return total;
+}
+
+
+void Strategy::calculate_decision(Hand* player_cards, Card* dealer_card, bool split){
+    
+    std::cout << "\nBasic strategy sugestion: ";
+    
+    int hand_val = player_cards->get_hand_val();
+    int dealer_card_val = dealer_card->get_value();
+    
+    // Adjusts for Ace being low in the card class
+    if (dealer_card_val == 1) { dealer_card_val = 11; }
+    
+    // Not splitting (most common case)
+    if (!split){
+        
+        // Player does not have an ace
+        if (!player_cards->soft_total()){
+            if (hand_val >= 17) {
+                std::cout << "Stand \n";
+            }
+            else if (hand_val >= 12){
+                if (dealer_card_val < Values::Seven){
+                    
+                    if (dealer_card_val < Values::Three && hand_val == 12){
+                        std::cout << "Hit \n";
+                    }
+                    else{
+                        std::cout << "Stand \n";
+                    }
+                }
+                else {
+                    std::cout << "Hit \n";
+                }
+            }
+            else if (hand_val == 11){
+                std::cout << "Double down \n";
+            }
+            else if (hand_val == 10 && dealer_card_val < 10){
+                std::cout << "Double down \n";
+            }
+            else if (hand_val == 9 && dealer_card_val < 7 && dealer_card_val > 2){
+                std::cout << "Double down \n";
+            }
+            else{
+                std::cout << "Hit \n";
+            }
+        }
+        
+        // Player has a soft total (an ace where both values 1 and 11 for that ace are valid)
+        else{
+            
+            int non_ace_total = calc_non_ace_total(player_cards);
+            
+            if (non_ace_total == 9){
+                std::cout << "Stand \n";
+            }
+            else if (non_ace_total == 8){
+                if (dealer_card_val == 6){
+                    std::cout << "Double down \n";
+                }
+                else {
+                    std::cout << "Stand \n";
+                }
+            }
+            else if (non_ace_total == 7){
+                if (dealer_card_val < 7){
+                    std::cout << "Double down \n";
+                }
+                else if (dealer_card_val < 9){
+                    std::cout << "Stand \n";
+                }
+                else {
+                    std::cout << "Hit \n";
+                }
+            }
+            else if (non_ace_total == 6 && dealer_card_val < 7 && dealer_card_val > 2){
+                std::cout << "Double down \n";
+            }
+            else if ((non_ace_total == 5 || non_ace_total == 4) && dealer_card_val < 7 && dealer_card_val > 3){
+                std::cout << "Double down \n";
+            }
+            else if ((non_ace_total == 3 || non_ace_total == 2) && dealer_card_val < 7 && dealer_card_val > 4){
+                std::cout << "Double down \n";
+            }
+            else {
+                std::cout << "Hit \n";
+            }
+        }
+    }
+    // Decision to split hand
+    else {
+        // To be able to split a hand the player must have two of the same card
+        int card_val = hand_val / 2;
+        
+        if (card_val == 1 || card_val == 8){
+            std::cout << "Split \n";
+        }
+        else if (card_val == 10 || card_val == 5){
+            std::cout << "Do not split \n";
+        }
+        else if (card_val == 9){
+            if (dealer_card_val == 7 || dealer_card_val == 10 || dealer_card_val == 11){
+                std::cout << "Do not split \n";
+            }
+            else {
+                std::cout << "Split \n";
+            }
+        }
+        else if (card_val == 7){
+            if (dealer_card_val > 7){
+                std::cout << "Do not split \n";
+            }
+            else {
+                std::cout << "Split \n";
+            }
+        }
+        else if (card_val == 6){
+            if (dealer_card_val > 6){
+                std::cout << "Do not split \n";
+            }
+            else {
+                std::cout << "Split \n";
+            }
+        }
+        else if (card_val == 4 && (dealer_card_val == 5 || dealer_card_val == 6)){
+            std::cout << "Split \n";
+        }
+        else if ((card_val == 3 || card_val == 2) && dealer_card_val < 8){
+            std::cout << "Split \n";
+        }
+        else {
+            std::cout << "Do not split \n";
+        }
+    }
+}
+
+
+// Resets all cards seen
+void Strategy::reset(){
+    running_count = 0;
+}
+
+
+// Called anytime a card is visible to the player
+void Strategy::card_seen(const Card& card){
+    
+    int value = card.get_value();
+    
+    // >1 accounts for aces
+    if (value < 6 && value > 1){
+        ++running_count;
+    }
+    else if (value < 9 || value == 1){
+        --running_count;
+    }
+}
+
+
+// Returns the current running count
+int Strategy::get_running_count(){
+    return running_count;
+}
+
+// Returns the current true count
+int Strategy::get_true_count(){
+    return running_count / ((NUM_DECKS * 52) - total_cards_seen);
+}
+
